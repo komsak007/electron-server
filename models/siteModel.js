@@ -5,10 +5,13 @@ const SiteSchema = new mongoose.Schema(
     site_id: {
       type: String,
       unique: true,
+      required: true,
       trim: true,
     },
     site_name: {
       type: String,
+      unique: true,
+      required: true,
     },
     site_code: {
       type: String,
