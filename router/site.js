@@ -9,6 +9,6 @@ const {
 
 router.get("/site", getSites);
 router.get("/site/:site_name", checkToken, getOneSite);
-router.post("/site/create", checkToken, create);
+router.post("/site/create", create);
 
 module.exports = router;
