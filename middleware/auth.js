@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const mysql = require("mysql");
 
 exports.checkToken = (req, res, next) => {
   const tokenUser = req.headers.authorization;
@@ -15,6 +16,32 @@ exports.checkToken = (req, res, next) => {
 
     req.decoded = decoded;
 
+    // console.log(decoded);
+
     next();
+  });
+};
+
+exports.checkAdmin = (req, res, next) => {
+  const id = req.decoded._id;
+
+  var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "electron",
+  });
+
+  con.connect(function (err) {
+    if (err) throw err;
+    console.log("Connected!");
+    var sql = `SELECT * FROM user WHERE userID = '${id}'`;
+    con.query(sql, function (err, result) {
+      if (err) return res.status(403).json(err);
+      if (result[0].role !== "admin") {
+        return res.status(401).json({ err: "Access Denied" });
+      }
+      next();
+    });
   });
 };

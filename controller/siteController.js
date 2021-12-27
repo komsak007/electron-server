@@ -44,8 +44,8 @@ exports.getSites = (req, res) => {
   con.connect(function (err) {
     if (err) throw err;
     console.log("Connected!");
-    var sql = "SELECT * FROM site";
-    var sql1 = "SELECT * FROM sensor";
+    var sql = "SELECT site_name FROM site";
+    var sql1 = "SELECT sensor_name, sub_site FROM sensor";
     con.query(sql, req.body, function (err, site) {
       if (err) return res.status(403).json(err);
       data.pop();
@@ -152,10 +152,21 @@ exports.getSites = (req, res) => {
 };
 
 exports.getOneSite = (req, res) => {
-  Site.findOne({ site_name: req.params.site_name }, (err, result) => {
-    if (err) return res.status(403).json(err);
+  var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "electron",
+  });
 
-    return res.json(result);
+  con.connect(function (err) {
+    if (err) throw err;
+    console.log("Connected!");
+    var sql = `SELECT * FROM site WHERE site_name = '${req.params.site_name}'`;
+    con.query(sql, function (err, result) {
+      if (err) return res.status(403).json(err);
+      return res.status(200).json(result[0]);
+    });
   });
 };
 
@@ -176,11 +187,25 @@ exports.create = (req, res) => {
       return res.status(200).json({ msg: "Site created" });
     });
   });
+};
 
-  // console.log(req.body);
-  // const site = new Site(req.body);
-  // site.save((err, result) => {
-  //   if (err) return res.status(403).json(err);
-  //   return res.status(200).json({ msg: "Site created" });
-  // });
+exports.editSite = (req, res) => {
+  var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "electron",
+  });
+
+  con.connect(function (err) {
+    if (err) throw err;
+    console.log("Connected!");
+    var sql = `UPDATE site SET ? WHERE site_name = '${req.params.site_name}'`;
+    con.query(sql, req.body, function (err, result) {
+      if (err) return res.status(403).json(err);
+      return res
+        .status(200)
+        .json({ msg: `Site ${req.params.site_name} Updated` });
+    });
+  });
 };
